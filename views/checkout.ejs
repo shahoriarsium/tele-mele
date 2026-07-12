@@ -1,0 +1,50 @@
+<%- include('particles/header') %>
+
+<div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mt-10">
+  <div class="bg-teal-700 p-4 text-center text-white">
+    <h2 class="text-xl font-bold">Booking Summary & Payment</h2>
+  </div>
+  
+  <div class="p-6 space-y-4">
+    <!-- রসিদের মতো করে ডাটা দেখানো হচ্ছে -->
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500 font-medium">Patient Name:</span>
+      <span class="font-bold text-gray-800"><%= data.patientName %></span>
+    </div>
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500 font-medium">Doctor Name:</span>
+      <span class="font-bold text-teal-700"><%= data.doctorName %></span>
+    </div>
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500 font-medium">Appointment Date:</span>
+      <span class="font-semibold text-gray-700"><%= data.bookingDate %></span>
+    </div>
+    <div class="flex justify-between border-b pb-2">
+      <span class="text-gray-500 font-medium">Selected Slot:</span>
+      <span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded font-bold"><%= data.timeSlot %></span>
+    </div>
+    <div class="flex justify-between pt-2 text-lg">
+      <span class="text-gray-800 font-bold">Total Payable:</span>
+      <span class="text-xl font-black text-slate-900">৳<%= data.fees %></span>
+    </div>
+
+    <!-- ফাইনাল পেমেন্ট ফর্ম যা ডাটাবেজে ডাটা সেভ করবে -->
+    <form action="/confirm-payment-and-book" method="POST" class="mt-6">
+      <!-- ব্যাকএন্ডে সেভ করার জন্য হিডেন ফিল্ডস -->
+      <input type="hidden" name="doctorName" value="<%= data.doctorName %>">
+      <input type="hidden" name="patientName" value="<%= data.patientName %>">
+      <input type="hidden" name="bookingDate" value="<%= data.bookingDate %>">
+      <input type="hidden" name="timeSlot" value="<%= data.timeSlot %>">
+
+      <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition duration-200 cursor-pointer text-center block">
+        Confirm & Pay Now 💳
+      </button>
+    </form>
+    
+    <div class="text-center mt-4">
+      <a href="/doctors" class="text-xs text-gray-400 hover:underline">Cancel Booking</a>
+    </div>
+  </div>
+</div>
+
+  <%- include('particles/footer') %>

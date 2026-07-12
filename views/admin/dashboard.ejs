@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TeleMele - Admin Control Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+    
+    <!-- ─── SIDEBAR NAV ─── -->
+    <div class="w-64 bg-slate-900 text-slate-100 flex flex-col">
+      <div class="p-5 bg-slate-950 flex items-center justify-center">
+        <h1 class="text-xl font-bold text-teal-400 tracking-wider">⚡ TeleMele Admin</h1>
+      </div>
+      
+      <nav class="flex-1 p-4 space-y-2 mt-4">
+        <a href="/admin" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= activeTab === 'manage-doctors' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200' %>">
+          <span>🩺</span> <span class="font-medium">Manage Doctors</span>
+        </a>
+        
+        <a href="/admin/add-doctor" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= activeTab === 'add-doctor' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200' %>">
+          <span>➕</span> <span class="font-medium">Add New Doctor</span>
+        </a>
+        
+        <a href="/admin/appointments" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= activeTab === 'appointments' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200' %>">
+          <span>📅</span> <span class="font-medium">Appointments</span>
+        </a>
+      </nav>
+
+      <a href="/admin/logout" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all hover:bg-red-950/40 text-red-400 hover:text-red-300 font-medium">
+        <span>❌</span> <span>Secure Logout</span>
+      </a>
+
+      <div class="p-4 bg-slate-950 text-center text-xs text-slate-500">
+        Logged in as Main Admin
+      </div>
+    </div>
+
+    <!-- ─── MAIN CONTENT AREA ─── -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+      
+      <!-- Top Header -->
+      <header class="bg-white border-b border-gray-200 py-4 px-8 flex justify-between items-center shadow-sm">
+        <h2 class="text-xl font-bold text-gray-800">Control Panel Dashboard</h2>
+        <a href="/doctors" target="_blank" class="text-sm font-medium text-teal-600 hover:underline">View Live Website 🌐</a>
+      </header>
+
+      <!-- Dynamic Component Renderer -->
+      <main class="p-8">
+        
+        <!-- TAB 1: MANAGE DOCTORS -->
+        <% if (activeTab === 'manage-doctors') { %>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h3 class="font-bold text-gray-800 text-lg">Active Registered Doctors</h3>
+              <span class="bg-teal-100 text-teal-800 text-xs px-2.5 py-1 rounded-full font-bold">Total: <%= allDoctors.length %></span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                    <th class="p-4">Doctor Details</th>
+                    <th class="p-4">Department</th>
+                    <th class="p-4">Fees</th>
+                    <th class="p-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                  <% allDoctors.forEach(doctor => { %>
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-4">
+                        <div class="font-bold text-gray-900"><%= doctor.name %></div>
+                        <div class="text-xs text-gray-400">Exp: <%= doctor.experience %></div>
+                      </td>
+                      <td class="p-4 font-medium text-gray-600"><%= doctor.speciality %></td>
+                      <td class="p-4 font-bold text-slate-900">৳<%= doctor.fees %></td>
+                      <td class="p-4 text-center">
+                        <form action="/admin/delete-doctor/<%= doctor._id %>" method="POST" onsubmit="return confirm('Remove this doctor permanently?');" class="inline">
+                          <button type="submit" class="bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-xl hover:bg-red-100 transition-colors cursor-pointer text-xs">Delete 🗑️</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- TAB 2: ADD DOCTOR FORM -->
+        <% if (activeTab === 'add-doctor') { %>
+          <div class="max-w-xl bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">Register a New Medical Professional</h3>
+            <form action="/admin/add-doctor" method="POST" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                <input type="text" name="name" placeholder="e.g. Dr. John Doe" required class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Speciality / Department</label>
+                <input type="text" name="speciality" placeholder="e.g. Cardiology" required class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Experience</label>
+                  <input type="text" name="experience" placeholder="e.g. 10 Years" required class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fees (TK)</label>
+                  <input type="number" name="fees" placeholder="1000" required class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Webpage Profile URL</label>
+                <input type="text" name="profileUrl" value="/doctor/md-shahoriar-islam-khan" required class="w-full p-2.5 border border-gray-200 bg-yellow-50 text-gray-700 font-mono text-sm rounded-xl focus:outline-none">
+              </div>
+              <button type="submit" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-700 shadow-md transition duration-200 mt-4 cursor-pointer">Save & Register Doctor</button>
+            </form>
+          </div>
+        <% } %>
+
+        <!-- TAB 3: APPOINTMENTS LIST -->
+        <% if (activeTab === 'appointments') { %>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h3 class="font-bold text-gray-800 text-lg">Patient Booking Rosters</h3>
+              <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">Total Appointments: <%= allBookings.length %></span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                    <th class="p-4">Patient Name</th>
+                    <th class="p-4">Assigned Doctor</th>
+                    <th class="p-4">Schedule Date</th>
+                    <th class="p-4">Time Slot</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                  <% allBookings.forEach(booking => { %>
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-4 font-bold text-gray-900"><%= booking.patientName %></td>
+                      <td class="p-4 font-medium text-teal-600"><%= booking.doctorName %></td>
+                      <td class="p-4"><%= booking.bookingDate %></td>
+                      <td class="p-4"><span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md font-semibold"><%= booking.timeSlot %></span></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- এই অংশটি </main> ট্যাগ শেষ হওয়ার ঠিক উপরে বসাবেন -->
+        <!-- TAB 4: REGISTERED USERS -->
+        <% if (activeTab === 'registered-users') { %>
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 bg-gray-50">
+              <h3 class="font-bold text-gray-800 text-lg">Registered User Database</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b border-gray-200">
+                    <th class="p-4">Name / Username</th>
+                    <th class="p-4">Contact Info</th>
+                    <th class="p-4">Address</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                  <% allUsers.forEach(user => { %>
+                    <tr class="hover:bg-gray-50/50">
+                      <td class="p-4">
+                        <div class="font-bold text-gray-900"><%= user.name %></div>
+                        <div class="text-xs text-teal-600">@<%= user.username %></div>
+                      </td>
+                      <td class="p-4">
+                        <div>✉️ <%= user.email %></div>
+                        <div class="text-xs text-gray-500">📞 <%= user.number %></div>
+                      </td>
+                      <td class="p-4 text-gray-600"><%= user.address %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- এই লিঙ্কটি অ্যাপয়েন্টমেন্ট লিঙ্কের ঠিক নিচে বসাবেন -->
+  <a href="/admin/users" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all <%= activeTab === 'registered-users' ? 'bg-teal-600 text-white shadow-lg' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200' %>">
+    <span>👥</span> <span class="font-medium">Registered Users</span>
+  </a>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+<%- include('particles/header') %>
+
+<div class="max-w-5xl mx-auto my-10 p-6 bg-white rounded-xl shadow-lg">
+    <div class="flex flex-col md:flex-row gap-8">
+      
+      <!-- বাম পাশে MD Shahoriar Islam Khan স্যারের পরিচিতি -->
+      <div class="w-full md:w-1/3 text-center md:text-left border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-8">
+        <img src="/asset/images/shahoriar.jpg" alt="Robiul Islam Khan" class="w-48 h-48 rounded-full mx-auto md:mx-0 object-cover shadow-md mb-4 border-4 border-teal-600" onerror="this.src='https://via.placeholder.com/150'">
+        
+        <h2 class="text-2xl font-bold text-gray-800">MD Shahoriar Islam Khan</h2>
+        <p class="text-teal-600 font-semibold text-lg">Surgeon</p>
+        <p class="text-gray-600 font-medium text-sm mb-3">Professor, Dhaka Medical College</p>
+        <span class="inline-block bg-teal-100 text-teal-800 text-xs px-3 py-1 rounded-full font-bold mb-4">Experience: 20 Years</span>
+        
+        <!-- ডিগ্রী ও কনসালটেশন ফি -->
+        <div class="mt-4 text-left space-y-2 bg-gray-50 p-4 rounded-lg">
+          <p class="text-sm text-gray-700"><strong class="text-gray-900">FRCS:</strong> London, UK</p>
+          <p class="text-sm text-gray-700"><strong class="text-gray-900">FCPS:</strong> Dhaka, Bangladesh</p>
+          <p class="text-sm text-gray-700"><strong class="text-gray-900">Consultation Fee:</strong> <span class="text-teal-700 font-bold text-base">৳1000</span></p>
+        </div>
+      </div>
+  
+      <!-- ডান পাশে ক্যালেন্ডার ও ৪টি নির্দিষ্ট টাইম স্লট -->
+      <div class="w-full md:w-2/3">
+        <h3 class="text-xl font-bold text-teal-700 mb-6 border-b pb-2">Select Date & Time Slot</h3>
+        
+        <form action="/book-appointment-submit" method="POST" class="space-y-6">
+          <!-- ব্যাকএন্ডে ডক্টরের নাম ও ফি পাঠানোর জন্য হিডেন ইনপুট -->
+          <input type="hidden" name="doctorName" value="MD Shahoriar Islam Khan">
+          <input type="hidden" name="fees" value="1000">
+  
+          <!-- রোগীর নাম -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Patient Name</label>
+            <input type="text" name="patientName" required placeholder="Enter Patient Name" class="w-full md:w-1/2 p-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500">
+          </div>
+  
+          <!-- ৩০ দিনের ক্যালেন্ডার লক ফিল্ড -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Available Booking Date (Next 30 Days)</label>
+            <input type="date" id="bookingDate" name="bookingDate" required class="p-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500 cursor-pointer">
+          </div>
+  
+          <!-- ৪টি টাইম স্লট রেডিও বাটন -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">Select a Time Slot</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label class="flex items-center p-3 border border-gray-200 rounded-lg bg-gray-50 hover:bg-teal-50 cursor-pointer transition-colors">
+                <input type="radio" name="timeSlot" value="04:00 PM - 04:30 PM" required class="h-4 w-4 text-teal-600">
+                <span class="ml-3 text-sm font-medium text-gray-700">04:00 PM - 04:30 PM</span>
+              </label>
+              <label class="flex items-center p-3 border border-gray-200 rounded-lg bg-gray-50 hover:bg-teal-50 cursor-pointer transition-colors">
+                <input type="radio" name="timeSlot" value="04:30 PM - 05:00 PM" class="h-4 w-4 text-teal-600">
+                <span class="ml-3 text-sm font-medium text-gray-700">04:30 PM - 05:00 PM</span>
+              </label>
+              <label class="flex items-center p-3 border border-gray-200 rounded-lg bg-gray-50 hover:bg-teal-50 cursor-pointer transition-colors">
+                <input type="radio" name="timeSlot" value="06:00 PM - 06:30 PM" class="h-4 w-4 text-teal-600">
+                <span class="ml-3 text-sm font-medium text-gray-700">06:00 PM - 06:30 PM</span>
+              </label>
+              <label class="flex items-center p-3 border border-gray-200 rounded-lg bg-gray-50 hover:bg-teal-50 cursor-pointer transition-colors">
+                <input type="radio" name="timeSlot" value="06:30 PM - 07:00 PM" class="h-4 w-4 text-teal-600">
+                <span class="ml-3 text-sm font-medium text-gray-700">06:30 PM - 07:00 PM</span>
+              </label>
+            </div>
+          </div>
+  
+          <!-- কার্ট ও পেমেন্টে যাওয়ার অ্যাকশন বাটন -->
+          <div class="pt-4">
+            <button type="submit" class="w-full md:w-auto bg-teal-700 text-white font-bold px-8 py-3 rounded-lg hover:bg-teal-800 transition-colors cursor-pointer shadow-md">
+              Proceed to Cart & Payment 💳
+            </button>
+          </div>
+        </form>
+      </div>
+  
+    </div>
+  </div>
+  
+  <!-- ক্যালেন্ডারের ৩০ দিন ভ্যালিডেশন স্ক্রিপ্ট -->
+  <script>
+    const dateInput = document.getElementById('bookingDate');
+    const today = new Date();
+    
+    // আজকের ডেট (সর্বনিম্ন সীমা)
+    const yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    dateInput.min = `${yyyy}-${mm}-${dd}`;
+  
+    // আজকের থেকে ৩০ দিন পর (সর্বোচ্চ সীমা)
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 30);
+    const maxY = maxDate.getFullYear();
+    let maxM = String(maxDate.getMonth() + 1).padStart(2, '0');
+    let maxD = String(maxDate.getDate()).padStart(2, '0');
+    dateInput.max = `${maxY}-${maxM}-${maxD}`;
+  </script>
+
+<%- include('particles/footer') %>
