@@ -52,14 +52,15 @@ doctorSchema.index({ name: 'text', speciality: 'text' });
 const Doctor = mongoose.model('Doctor', doctorSchema);
 
 // অ্যাপয়েন্টমেন্ট/বুকিং স্কিমা (যা পেমেন্টের পর ডাটাবেজে সেভ হবে)
+// অ্যাপয়েন্টমেন্ট/বুকিং স্কিমা (আপডেটেড)
 const appointmentSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // এটি নতুন যোগ করা হলো
     doctorName: String,
     patientName: String, 
     bookingDate: String, 
     timeSlot: String     
 });
 const Appointment = mongoose.model('Appointment', appointmentSchema);
-
 // ==================== অ্যাডমিন স্কিমা (Admin Schema) ====================
 const adminSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
@@ -214,30 +215,37 @@ app.get('/checkout', (req, res) => {
     res.render('checkout', { data: checkoutData });
 });
 // াপ ৩: পেমেন্ট সফল হওয়ার পর ফাইনাল বুকিং ডাটাবেজে সেভ করা
+// পেমেন্ট সফল হওয়ার পর ফাইনাল বুকিং ডাটাবেজে সেভ করা (আপডেটেড)
 app.post('/confirm-payment-and-book', async (req, res) => {
+    // সিকিউরিটি চেক: ইউজার লগইন করা না থাকলে লগইন পেজে পাঠাবে
+    if (!currentUserSession) {
+        return res.redirect('/login');
+    }
+
     try {
         const confirmedAppointment = new Appointment({
+            userId: currentUserSession._id, // লগইন করা ইউজারের আইডি সেভ হচ্ছে
             doctorName: req.body.doctorName,
-            patientName: req.body.patientName || "Anonymous Patient",
+            patientName: req.body.patientName || currentUserSession.name,
             bookingDate: req.body.bookingDate,
             timeSlot: req.body.timeSlot
         });
 
-        await confirmedAppointment.save(); // পেমেন্ট কনফার্মেশনের পর ডাটা সেভ হলো
+        await confirmedAppointment.save(); 
         
         res.send(`
             <div style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px; padding: 20px;">
                 <h1 style="color: #059669;">🎉 Payment Successful & Appointment Booked!</h1>
-                <p style="font-size: 18px; color: #374151;">Thank you, <b>${req.body.patientName}</b>. Your serial for <b>${req.body.doctorName}</b> is confirmed.</p>
+                <p style="font-size: 18px; color: #374151;">Thank you, <b>${req.body.patientName || currentUserSession.name}</b>. Your serial for <b>${req.body.doctorName}</b> is confirmed.</p>
                 <p style="color: #6b7280;">Date: ${req.body.bookingDate} | Time: ${req.body.timeSlot}</p>
-                <a href="/doctors" style="display:inline-block; padding:12px 24px; background:#059669; color:#fff; text-decoration:none; border-radius:8px; margin-top:20px; font-weight: bold; shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">Back to Doctors List</a>
+                <a href="/doctors" style="display:inline-block; padding:12px 24px; background:#059669; color:#fff; text-decoration:none; border-radius:8px; margin-top:20px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">Back to Doctors List</a>
             </div>
         `);
     } catch (err) {
+        console.error(err);
         res.status(500).send("Error completing payment and booking");
     }
 });
-
 
 // অ্যাডমিন সেশন ট্র্যাক করার জন্য গ্লোবাল ভ্যারিয়েবল (লাইন ৩৫ এর দিকে যোগ করতে পারেন)
 //let currentAdminSession = null; 
@@ -299,11 +307,13 @@ app.get('/admin/add-doctor', async (req, res) => {
     }); 
 });
 
+// অ্যাডমিন ড্যাশবোর্ড - বুকিং লিস্ট (আপডেটেড)
 app.get('/admin/appointments', async (req, res) => {
     if (!currentAdminSession) return res.redirect('/admin/login');
     
     try {
-        const bookingList = await Appointment.find({}); 
+        // populate('userId') এর মাধ্যমে ইউজারের বিস্তারিত ডেটাও (নাম, ইমেইল) সাথে নিয়ে আসবে
+        const bookingList = await Appointment.find({}).populate('userId'); 
         res.render('admin/dashboard', { 
             activeTab: 'appointments', 
             allDoctors: [],
@@ -331,6 +341,25 @@ app.get('/admin/users', async (req, res) => {
     }
 });
 
+
+// অ্যাডমিন প্যানেল থেকে নির্দিষ্ট ইউজার ডিলিট করা
+app.post('/admin/delete-user/:id', async (req, res) => {
+    if (!currentAdminSession) return res.redirect('/admin/login');
+    
+    try {
+        const userId = req.params.id;
+        
+        // ১. ইউজারকে ডিলিট করবে
+        await User.findByIdAndDelete(userId);
+        
+        // ২. ঐ ইউজারের করা সমস্ত অ্যাপয়েন্টমেন্টও ডাটাবেজ থেকে ক্লিয়ার করে দেবে
+        await Appointment.deleteMany({ userId: userId });
+        
+        res.redirect('/admin/users');
+    } catch (err) {
+        res.status(500).send("Error deleting user");
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

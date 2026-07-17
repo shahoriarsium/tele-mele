@@ -129,26 +129,41 @@
               <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">Total Appointments: <%= allBookings.length %></span>
             </div>
             <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                    <th class="p-4">Patient Name</th>
-                    <th class="p-4">Assigned Doctor</th>
-                    <th class="p-4">Schedule Date</th>
-                    <th class="p-4">Time Slot</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
-                  <% allBookings.forEach(booking => { %>
-                    <tr class="hover:bg-gray-50/50">
-                      <td class="p-4 font-bold text-gray-900"><%= booking.patientName %></td>
-                      <td class="p-4 font-medium text-teal-600"><%= booking.doctorName %></td>
-                      <td class="p-4"><%= booking.bookingDate %></td>
-                      <td class="p-4"><span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md font-semibold"><%= booking.timeSlot %></span></td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
+              <!-- Admin Dashboard এর Appointments টেবিল -->
+<table class="table">
+  <thead>
+      <tr>
+          <th>Doctor Name</th>
+          <th>Patient Name</th>
+          <th>Phone Number</th>
+          <th>Date</th>
+          <th>Time</th>
+      </tr>
+  </thead>
+  <tbody>
+      <!-- EJS Loop শুরু -->
+      <% allBookings.forEach(function(booking) { %>
+          <tr>
+              <td><%= booking.doctorName %></td>
+              
+              <!-- আগে আপনি হয়তো লিখতেন: <%= booking.patientName %> -->
+              <!-- এখন লিখবেন এভাবে (যদি ইউজার আইডি থাকে, তাহলে তার নাম দেখাবে): -->
+              <td>
+                  <%= booking.userId ? booking.userId.name : 'Unknown User' %>
+              </td>
+              
+              <!-- ফোন নম্বর দেখানোর জন্য: -->
+              <td>
+                  <%= booking.userId ? booking.userId.number : 'N/A' %>
+              </td>
+              
+              <td><%= booking.bookingDate %></td>
+              <td><%= booking.timeSlot %></td>
+          </tr>
+      <% }) %>
+      <!-- EJS Loop শেষ -->
+  </tbody>
+</table>
             </div>
           </div>
         <% } %>
